@@ -1,0 +1,6 @@
+0338d393b472ddcec5ee6cf8713a54fd2a63cec5
+# The policy in its current form (a whole-history scan) starts at the commit
+# after this one. Omniroute mirrors an upstream, and its imported documentation
+# contains sentences that name an assistant as the thing that generated a file.
+# Those are not this repository's commits to rewrite, and an upstream sync would
+# bring them back; everything after this point is judged on every push and PR.
