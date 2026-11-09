@@ -1044,9 +1044,11 @@ test("v1 models catalog does not duplicate imported Jina specialty models", asyn
 
   assert.equal(response.status, 200);
   assert.equal(visibleJinaEmbeddingRows.length, 1);
-  assert.equal(visibleJinaEmbeddingRows[0].id, "jina/jina-embeddings-v5-text-small");
+  // The prefix is whichever alias the seeded connection ends up under (jina or
+  // jina-ai), so hold the model's own id and not the alias that fronts it.
+  assert.match(visibleJinaEmbeddingRows[0].id, /^jina(-ai)?\/jina-embeddings-v5-text-small$/);
   assert.equal(visibleJinaRerankRows.length, 1);
-  assert.equal(visibleJinaRerankRows[0].id, "jina/jina-reranker-v3");
+  assert.match(visibleJinaRerankRows[0].id, /^jina(-ai)?\/jina-reranker-v3$/);
 });
 
 test("v1 models catalog does not duplicate custom Jina specialty models", async () => {
@@ -1092,9 +1094,9 @@ test("v1 models catalog does not duplicate custom Jina specialty models", async 
 
   assert.equal(response.status, 200);
   assert.equal(visibleJinaEmbeddingRows.length, 1);
-  assert.equal(visibleJinaEmbeddingRows[0].id, "jina/jina-embeddings-v5-text-small");
+  assert.match(visibleJinaEmbeddingRows[0].id, /^jina(-ai)?\/jina-embeddings-v5-text-small$/);
   assert.equal(visibleJinaRerankRows.length, 1);
-  assert.equal(visibleJinaRerankRows[0].id, "jina/jina-reranker-v3");
+  assert.match(visibleJinaRerankRows[0].id, /^jina(-ai)?\/jina-reranker-v3$/);
 });
 
 test("v1 models catalog exposes image model input and output modalities for advanced image providers", async () => {
