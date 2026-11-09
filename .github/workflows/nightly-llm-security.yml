@@ -36,7 +36,11 @@ jobs:
             sleep 2
           done
       - name: promptfoo guard-validation
-        run: npx --yes promptfoo@latest eval -c promptfooconfig.yaml --no-cache
+        # Pinned: promptfoo 0.123.x throws "responseError?.includes is not a
+        # function" in its own rate-limit state, so every provider row errors
+        # before the guard is even reached. 0.122.0 is the version dast-smoke
+        # runs green. Bump only after a green eval on the new version.
+        run: npx --yes promptfoo@0.122.0 eval -c promptfooconfig.yaml --no-cache
         env:
           OMNIROUTE_URL: http://localhost:20128
           OMNIROUTE_API_KEY: not-needed-blocked-before-upstream
