@@ -49,9 +49,19 @@ jobs:
               | sed 's#origin/##' \
               | sort -t/ -k2 -V \
               | tail -1)
+            # The compat matrix guards the code that is about to ship, so it must
+            # follow the newest tip. A release branch gets left behind once the
+            # line moves on (v3.8.51 froze on 2026-09-09 while main kept shipping
+            # 4.6k commits), and validating that frozen tip reported failures main
+            # had already fixed — a false red every single night. Compare tip
+            # dates and fall back to main whenever the release tip is older.
+            if [ -z "$TARGET" ] \
+              || [ "$(git log -1 --format=%ct "origin/$TARGET")" -lt "$(git log -1 --format=%ct origin/main)" ]; then
+              TARGET=main
+            fi
           fi
           case "$TARGET" in
-            release/v[0-9]*.[0-9]*.[0-9]*) ;;
+            main|release/v[0-9]*.[0-9]*.[0-9]*) ;;
             *) echo "Refusing non-canonical branch name: $TARGET"; exit 1 ;;
           esac
           echo "target=$TARGET" >> "$GITHUB_OUTPUT"
