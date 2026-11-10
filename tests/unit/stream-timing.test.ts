@@ -22,9 +22,12 @@ test("ttft() is null when nothing was forwarded", () => {
 test("ttft() measures first-forwarded-chunk latency (byte vs forward distinguished)", async () => {
   const t = createStreamTiming();
   t.markByte(); // first upstream byte arrives immediately
-  await new Promise((r) => setTimeout(r, 20));
-  t.markForward(); // first chunk forwarded 20ms later
+  await new Promise((r) => setTimeout(r, 25));
+  t.markForward(); // first chunk forwarded 25ms later
   const ttft = t.ttftMs();
+  // Date.now() truncates to the millisecond and a timer may fire a hair early,
+  // so a 20ms floor against a 25ms sleep keeps the assertion meaningful without
+  // failing on scheduling noise.
   assert.ok(ttft !== null && ttft >= 20 && ttft < 5000, `ttft=${ttft}`);
   assert.ok(t.firstByteAt !== null);
   assert.ok(t.firstByteAt! < t.firstForwardAt!, "first byte precedes first forward");
@@ -71,11 +74,13 @@ test("interruption is recorded and does not reset other timing", async () => {
 
 test("normal completion: totalMs() is monotonic and >= first-forward latency", async () => {
   const t = createStreamTiming();
-  await new Promise((r) => setTimeout(r, 15));
+  await new Promise((r) => setTimeout(r, 25));
   t.markForward();
   const total = t.totalMs();
   const ttft = t.ttftMs();
-  assert.ok(total >= 15);
+  // Same truncation caveat as above: elapsed is floored, so leave slack under
+  // the sleep rather than asserting the wall clock hit the exact duration.
+  assert.ok(total >= 20, `total=${total}`);
   assert.ok(ttft !== null && ttft <= total, "ttft must be <= total duration");
 });
 
