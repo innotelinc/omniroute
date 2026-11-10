@@ -1045,6 +1045,11 @@ test.describe("API keys flow", () => {
     expect(denyAllPatch.modelAccessMode).toBe("restricted");
     expect(denyAllPatch.allowedModels).toEqual([]);
 
+    // Saving closes the dialog and the list refetches, so wait for the close to
+    // settle before reopening: a click during that re-render lands on a node the
+    // refetch is about to replace, and no dialog opens from it.
+    await expect(reopened).toBeHidden({ timeout: UI_STABILITY_TIMEOUT_MS });
+
     await keyRow.locator('button[title="Edit permissions"]').click({ force: true });
     const denyAllReopened = page.getByRole("dialog", {
       name: /permissions: provider scope key/i,
