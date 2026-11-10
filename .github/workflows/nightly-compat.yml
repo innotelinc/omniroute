@@ -97,24 +97,26 @@ jobs:
           OMNIROUTE_USE_TURBOPACK: "0"
 
   compat-tests:
-    name: Node ${{ matrix.node }} Compat Tests (${{ matrix.shard }}/4)
+    name: Node ${{ matrix.node }} Compat Tests (${{ matrix.shard }}/8)
     runs-on: ubuntu-latest
     # Node 26 runs the same shards noticeably slower than 24: on main every
-    # Node 24 shard finishes well inside 25 min, but the Node 26 shards were
-    # still working at 25:15 and got cancelled at the old limit, which reads as
-    # "cancelled" (a false red) rather than as a compat failure.
-    timeout-minutes: 40
+    # Node 24 shard finishes well inside 25 min, while Node 26 was still working
+    # past 40 min on the heaviest shard and got cancelled, which reads as
+    # "cancelled" (a false red) rather than as a compat failure. Sharding 8 ways
+    # keeps each job's share of the suite small instead of just waiting longer;
+    # the timeout leaves headroom for slower runner days.
+    timeout-minutes: 50
     needs: resolve-branch
     strategy:
       fail-fast: false
       matrix:
         node: [24, 26]
-        shard: [1, 2, 3, 4]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
     env:
       JWT_SECRET: ci-nightly-secret-with-sufficient-length-for-validation
       API_KEY_SECRET: ci-nightly-api-key-secret-long
       DISABLE_SQLITE_AUTO_BACKUP: "true"
-      TEST_SHARD: ${{ matrix.shard }}/4
+      TEST_SHARD: ${{ matrix.shard }}/8
     steps:
       - uses: actions/checkout@v7
         with:
