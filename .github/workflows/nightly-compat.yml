@@ -99,7 +99,11 @@ jobs:
   compat-tests:
     name: Node ${{ matrix.node }} Compat Tests (${{ matrix.shard }}/4)
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    # Node 26 runs the same shards noticeably slower than 24: on main every
+    # Node 24 shard finishes well inside 25 min, but the Node 26 shards were
+    # still working at 25:15 and got cancelled at the old limit, which reads as
+    # "cancelled" (a false red) rather than as a compat failure.
+    timeout-minutes: 40
     needs: resolve-branch
     strategy:
       fail-fast: false
